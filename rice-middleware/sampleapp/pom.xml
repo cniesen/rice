@@ -207,6 +207,18 @@
 
   <dependencies>
     <dependency>
+      <groupId>org.kuali.rice</groupId>
+      <artifactId>rest-services</artifactId>
+      <version>1.0-SNAPSHOT</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.kuali.org</groupId>
+          <artifactId>rice-impl</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>rice-tools-test</artifactId>
       <version>${project.version}</version>
