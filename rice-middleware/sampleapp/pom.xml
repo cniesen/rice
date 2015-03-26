@@ -79,6 +79,17 @@
         <artifactId>maven-war-plugin</artifactId>
         <configuration>
           <overlays>
+            <!--Rice Rest Swagger-->
+            <overlay>
+              <groupId>org.kuali.rice</groupId>
+              <artifactId>rest-web</artifactId>
+              <excludes>
+                <exclude>**/web.xml</exclude>
+                <exclude>META-INF</exclude>
+              </excludes>
+              <filtered>false</filtered>
+            </overlay>
+
             <overlay>
               <groupId>${project.groupId}</groupId>
               <artifactId>rice-web</artifactId>
@@ -206,6 +217,7 @@
   </profiles>
 
   <dependencies>
+    <!--Rice Rest-->
     <dependency>
       <groupId>org.kuali.rice</groupId>
       <artifactId>rest-services</artifactId>
@@ -216,6 +228,19 @@
           <artifactId>rice-impl</artifactId>
         </exclusion>
       </exclusions>
+    </dependency>
+
+    <!--Rice Rest Swagger-->
+    <dependency>
+      <groupId>org.kuali.rice</groupId>
+      <artifactId>rest-enhanced</artifactId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.kuali.rice</groupId>
+      <artifactId>rest-web</artifactId>
+      <version>1.0-SNAPSHOT</version>
+      <type>war</type>
     </dependency>
 
     <dependency>
