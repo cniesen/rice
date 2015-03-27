@@ -29,6 +29,7 @@
   <properties>
     <web.launch.context.path>/standalone</web.launch.context.path>
     <bootstrap.spring.file>classpath:org/kuali/rice/standalone/config/StandaloneSpringBeans.xml</bootstrap.spring.file>
+    <rice.rest.version>1.0-SNAPSHOT</rice.rest.version>
   </properties>
 
   <build>
@@ -62,6 +63,18 @@
                 <exclude>WEB-INF/web.xml</exclude>
               </excludes>
             </overlay>
+
+            <!--Rice Rest Swagger-->
+            <overlay>
+              <groupId>org.kuali.rice</groupId>
+              <artifactId>rest-web</artifactId>
+              <excludes>
+                <exclude>**/web.xml</exclude>
+                <exclude>META-INF</exclude>
+              </excludes>
+              <filtered>false</filtered>
+            </overlay>
+
           </overlays>
         </configuration>
       </plugin>
@@ -94,5 +107,32 @@
       <artifactId>rice-edl-impl</artifactId>
       <version>${project.version}</version>
     </dependency>
+
+    <!--Rice Rest-->
+    <dependency>
+      <groupId>org.kuali.rice</groupId>
+      <artifactId>rest-services</artifactId>
+      <version>${rice.rest.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.kuali.org</groupId>
+          <artifactId>rice-impl</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <!--Rice Rest Swagger-->
+    <dependency>
+      <groupId>org.kuali.rice</groupId>
+      <artifactId>rest-enhanced</artifactId>
+      <version>${rice.rest.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.kuali.rice</groupId>
+      <artifactId>rest-web</artifactId>
+      <version>${rice.rest.version}</version>
+      <type>war</type>
+    </dependency>
+
   </dependencies>
 </project>

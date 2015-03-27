@@ -384,6 +384,13 @@
     <load-on-startup>5</load-on-startup>
   </servlet>
 
+  <!--Rice Rest-->
+  <servlet>
+    <servlet-name>rest</servlet-name>
+    <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+    <load-on-startup>6</load-on-startup>
+  </servlet>
+
   <servlet-mapping>
     <servlet-name>remoting</servlet-name>
     <url-pattern>/remoting/*</url-pattern>
@@ -442,6 +449,12 @@
   <servlet-mapping>
     <servlet-name>login</servlet-name>
     <url-pattern>/kr-login/*</url-pattern>
+  </servlet-mapping>
+
+  <!--Rice Rest-->
+  <servlet-mapping>
+    <servlet-name>rest</servlet-name>
+    <url-pattern>/rest/*</url-pattern>
   </servlet-mapping>
 
   <session-config>
