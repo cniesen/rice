@@ -15,14 +15,20 @@
  */
 package org.kuali.rice.testtools.selenium;
 
+import com.google.common.base.Function;
 import org.junit.Assert;
 import org.kuali.rice.testtools.common.JiraAwareFailable;
 import org.kuali.rice.testtools.common.JiraAwareFailureUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.FluentWait;
+import org.openqa.selenium.support.ui.Wait;
 
+import javax.annotation.Nullable;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -40,6 +46,15 @@ import java.util.List;
  * @author Kuali Rice Team (rice.collab@kuali.org)
  */
 public abstract class JiraAwareAftBase extends AutomatedFunctionalTestBase implements JiraAwareFailable {
+
+    /**
+     * Time out and polling times for FluentWait, which checks for present of an element.
+     */
+    private static final int FLUENT_WAIT_TIMEOUT = WebDriverUtils.configuredImplicityWait();
+    private static final TimeUnit FLUENT_WAIT_TIMEOUT_UNIT = TimeUnit.SECONDS;
+    private static final int FLUENT_WAIT_POLLING_TIME = 500;
+    private static final TimeUnit FLUENT_WAIT_POLLING_TIME_UNIT = TimeUnit.MILLISECONDS;
+
 
     /**
      * Test state, used for Saucelabs REST API call to set test state via @{see SauceLabsWebDriverHelper#tearDown}.
@@ -431,10 +446,26 @@ public abstract class JiraAwareAftBase extends AutomatedFunctionalTestBase imple
         return findDataTableRow(keyText, "dataTable");
     }
 
-    protected WebElement findDataTableRow(String keyText, String className) throws InterruptedException {
-        jiraAwareWaitFor(By.className(className));
-        WebElement element = findElement(By.className(className));
-        return findElement(By.xpath("./*/tr//*[contains(text(), '" + keyText + "')]/ancestor::tr"), element);
+    protected WebElement findDataTableRow(final String keyText, String className) throws InterruptedException {
+        try {
+            Wait<WebDriver> wait = new FluentWait<WebDriver>(getDriver())
+                    .withTimeout(FLUENT_WAIT_TIMEOUT, FLUENT_WAIT_TIMEOUT_UNIT)
+                    .pollingEvery(FLUENT_WAIT_POLLING_TIME, FLUENT_WAIT_POLLING_TIME_UNIT);
+            WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(By.className(className)));
+            Wait<WebElement> elementWait = new FluentWait<WebElement>(element)
+                    .withTimeout(FLUENT_WAIT_TIMEOUT, FLUENT_WAIT_TIMEOUT_UNIT)
+                    .pollingEvery(FLUENT_WAIT_POLLING_TIME, FLUENT_WAIT_POLLING_TIME_UNIT);
+            return elementWait.until(new Function<WebElement, WebElement>() {
+                @Nullable
+                @Override
+                public WebElement apply(WebElement input) {
+                    return input.findElement(By.xpath("./*/tr//*[contains(text(), '" + keyText + "')]/ancestor::tr"));
+                }
+            });
+        } catch (Throwable t) {
+            jiraAwareFail(By.className(className), this.getClass().toString() + " " + this.getClass().toString(), t);
+        }
+        return null;
     }
 
     /**
@@ -475,7 +506,8 @@ public abstract class JiraAwareAftBase extends AutomatedFunctionalTestBase imple
 
     protected boolean isLabeledInputTextPresent(String label, String text) {
         String labeledText = "no input or select found no text returned";
-        List<WebElement> inputs = getDriver().findElements(By.xpath("//tr/th/label[contains(text(), '" + label + "')]/ancestor::tr/td/div/input"));
+        List<WebElement> inputs = getDriver().findElements(By.xpath(
+                "//tr/th/label[contains(text(), '" + label + "')]/ancestor::tr/td/div/input"));
 
         if (inputs.size() > 1) {
             System.out.println("found more elements in labeled input than expected");
@@ -505,8 +537,9 @@ public abstract class JiraAwareAftBase extends AutomatedFunctionalTestBase imple
             }
         }
 
-        WebDriverUtils.jGrowl(getDriver(), "Is Labeled Text Present", false, "Is text '" + text + "' present for label '"
-                + label + "'? " + labeledText.contains(text) + " saw " + labeledText);
+        WebDriverUtils.jGrowl(getDriver(), "Is Labeled Text Present", false,
+                "Is text '" + text + "' present for label '" + label + "'? " + labeledText.contains(text) + " saw "
+                        + labeledText);
         return labeledText.contains(text);
     }
 
@@ -639,23 +672,39 @@ public abstract class JiraAwareAftBase extends AutomatedFunctionalTestBase imple
     }
 
     /**
-     * {@see #checkForIncidentReport} and {@see JiraAwareFailureUtils#fail}.
+     * Type a given text into the text element
      *
-     * @param by to click on
-     * @param message on failure
-     * @throws InterruptedException
+     * @param element the text element
+     * @param text the text to be typed
+     * @return the text element
      */
-    protected void jiraAwareWaitAndClick(By by, String message) throws InterruptedException {
-        jiraAwareWaitAndClick(by, message, this);
+
+    /**
+     * Type a given text into the text element specified by the locator
+     *
+     * @param by the locator of the text element
+     * @param text the text to be typed
+     * @return the text element
+     */
+    protected WebElement type(By by, String text) {
+        return type(by, text, this.getClass().toString().replace("class ", ""));
     }
 
-    protected WebElement jiraAwareType(By by, String text) {
-        return jiraAwareType(by, text, this.getClass().toString().replace("class ", ""));
-    }
-
-    protected WebElement jiraAwareType(By by, String text, String failureMessage) {
+    /**
+     * Type a given text into the text element specified by the locator
+     *
+     * @param by the locator of the text element
+     * @param text the text to be typed
+     * @param failureMessage the message to displayed on failure
+     * @return the text element
+     */
+    protected WebElement type(By by, String text, String failureMessage) {
         try {
-            return type(by, text);
+            Wait<WebDriver> wait = new FluentWait<WebDriver>(getDriver())
+                    .withTimeout(FLUENT_WAIT_TIMEOUT, FLUENT_WAIT_TIMEOUT_UNIT)
+                    .pollingEvery(FLUENT_WAIT_POLLING_TIME, FLUENT_WAIT_POLLING_TIME_UNIT);
+            WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(by));
+            return type(element, text);
         } catch (Throwable t) {
             JiraAwareFailureUtils.failOnMatchedJira(by.toString(), failureMessage, this);
             jiraAwareFail(t.getMessage()
@@ -673,41 +722,43 @@ public abstract class JiraAwareAftBase extends AutomatedFunctionalTestBase imple
         return null;
     }
 
-    protected WebElement jiraAwareTypeByName(String name, String text) {
-        return jiraAwareType(By.name(name), text, this.getClass().toString().replace("class ", ""));
-    }
-
-    protected WebElement jiraAwareTypeByName(String name, String text, String failureMessage) {
-        return jiraAwareType(By.name(name), text, failureMessage);
+    /**
+     * Type a given text into the text element specified by the name
+     *
+     * @param name name of the element
+     * @param text the text to be typed
+     * @return
+     */
+    protected WebElement typeByName(String name, String text) {
+        return type(By.name(name), text);
     }
 
     /**
-     * {@see #jiraAwareWaitFor}
+     * Click on the element specified by the locator
      *
-     * @param by to click on
-     * @param message on failure
+     * @param by the locator of the element
+     * @param message the message to displayed on failure
+     * @throws InterruptedException
+     */
+    protected void click(By by, String message) throws InterruptedException {
+        click(by, message, this);
+    }
+
+    /**
+     * Click on the element specified by the locator
+     *
+     * @param by the locator of the element
+     * @param message the message to displayed on failure
      * @param failable to fail on if not found
      * @throws InterruptedException
      */
-    protected void jiraAwareWaitAndClick(By by, String message, JiraAwareFailable failable) throws InterruptedException {
-        jiraAwareWaitAndClick(by, WebDriverUtils.configuredImplicityWait(), message, failable);
-    }
-
-    protected void jiraAwareWaitAndClick(By by, int waitSeconds, String message, JiraAwareFailable failable) throws InterruptedException {
+    protected void click(By by, String message, JiraAwareFailable failable) throws InterruptedException {
         try {
-            jiraAwareWaitFor(by, waitSeconds, message, failable);
-            findElement(by).click();
-            // possible future code of outputting clicked components in a more generic way, but need to look into duplicates, don't delete
-            //            WebElement element = findElement(by);
-            //            String jgrowl = element.getAttribute("name");
-            //            if (jgrowl == null || "".equals(jgrowl)) {
-            //                jgrowl = element.getAttribute("id");
-            //            }
-            //            if (jgrowl == null || "".equals(jgrowl)) {
-            //                jgrowl = by.toString();
-            //            }
-            //            WebDriverUtils.jGrowl(getDriver(), "Click " + jgrowl, false, "Click " + jgrowl);
-            //            element.click();
+            Wait<WebDriver> wait = new FluentWait<WebDriver>(getDriver())
+                    .withTimeout(FLUENT_WAIT_TIMEOUT, FLUENT_WAIT_TIMEOUT_UNIT)
+                    .pollingEvery(FLUENT_WAIT_POLLING_TIME, FLUENT_WAIT_POLLING_TIME_UNIT);
+            wait.until(ExpectedConditions.elementToBeClickable(by)).click();
+
         } catch (Throwable t) {
             failable.jiraAwareFail(by.toString(), message, t);
         }
@@ -869,17 +920,19 @@ public abstract class JiraAwareAftBase extends AutomatedFunctionalTestBase imple
         }
     }
 
-    private WebElement type(By by, String text) {
-        WebElement element = findElement(by);
+    /**
+     * Type a given text into the text element
+     *
+     * @param element the text element
+     * @param text the text to be typed
+     * @return the text element
+     */
+    private WebElement type(WebElement element, String text) {
         String name = element.getAttribute("name");
         WebDriverUtils.jGrowl(getDriver(), "Type", false, "Type into " + name + " the text: " + text);
         WebDriverUtils.highlightElement(getDriver(), element);
         element.sendKeys(text);
         return element;
-    }
-
-    private WebElement typeByName(String name, String text) {
-        return type(By.name(name), text);
     }
 
     /**
@@ -890,31 +943,71 @@ public abstract class JiraAwareAftBase extends AutomatedFunctionalTestBase imple
      */
     protected void passed() {
         if (passed == true) {
-            WebDriverUtils.jGrowl(getDriver(), "Passed has been called more than once " + getClass().getSimpleName(), true, "Passed");
+            WebDriverUtils.jGrowl(getDriver(), "Passed has been called more than once " + getClass().getSimpleName(),
+                    true, "Passed");
         }
         passed = true;
         WebDriverUtils.jGrowl(getDriver(), "Success " + getClass().getSimpleName(), true, "Passed");
     }
 
+    /**
+     * @deprecated use the {@link #type(By, String, String)} method instead
+     */
+    protected void jiraAwareWaitAndClick(By by, String message) throws InterruptedException {
+        click(by, message, this);
+    }
+
+    /**
+     * @deprecated use the {@link #type(By, String, String)} method instead
+     */
+    protected void jiraAwareWaitAndClick(By by, String message, JiraAwareFailable failable) throws InterruptedException {
+        click(by, message, failable);
+    }
+
+    /**
+     * @deprecated use the {@link #type(By, String, String)} method instead
+     */
+    protected void jiraAwareWaitAndClick(By by, int waitSeconds, String message, JiraAwareFailable failable) throws InterruptedException {
+        click(by, message, failable);
+    }
+
+    /**
+     * @deprecated use the {@link #type(By, String, String)} method instead
+     */
+    @Deprecated
     protected WebElement waitAndType(By by, String text, String message) throws InterruptedException {
-        try {
-            jiraAwareWaitFor(by, message);
-            return type(by, text);
-        } catch (Throwable t) {
-            checkForIncidentReport(by.toString(), message);
-            JiraAwareFailureUtils.failOnMatchedJira(by.toString(), message, this);
-            jiraAwareFail(t.getMessage()
-                    + " "
-                    + by.toString()
-                    + "  unable to type text '"
-                    + text
-                    + "'  "
-                    + message
-                    + " current url "
-                    + getDriver().getCurrentUrl()
-                    + "\n"
-                    + AutomatedFunctionalTestUtils.deLinespace(getDriver().getPageSource()));
-        }
-        return null;
+        return type(by, text, message);
+    }
+
+    /**
+     * @deprecated use the {@link #type(By, String)} method instead
+     */
+    @Deprecated
+    protected WebElement jiraAwareType(By by, String text) {
+        return type(by, text);
+    }
+
+    /**
+     * @deprecated use the {@link #type(By, String, String)} method instead
+     */
+    @Deprecated
+    protected WebElement jiraAwareType(By by, String text, String failureMessage) {
+        return type(by, text, failureMessage);
+    }
+
+    /**
+     * @deprecated use the {@link #typeByName(String, String)} method instead
+     */
+    @Deprecated
+    protected WebElement jiraAwareTypeByName(String name, String text) {
+        return typeByName(name, text);
+    }
+
+    /**
+     * @deprecated use the {@link #type(By, String, String)} method instead
+     */
+    @Deprecated
+    protected WebElement jiraAwareTypeByName(String name, String text, String failureMessage) {
+        return type(By.name(name), text, failureMessage);
     }
 }
