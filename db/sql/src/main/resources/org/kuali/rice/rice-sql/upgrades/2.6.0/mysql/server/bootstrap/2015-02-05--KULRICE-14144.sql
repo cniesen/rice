@@ -101,19 +101,19 @@ alter table krsb_qrtz_triggers add column sched_name varchar(120) not null DEFAU
 --
 -- add all primary and foreign key constraint s, based on new columns
 --
-alter table krsb_qrtz_triggers drop primary key, add primary key (sched_name, trigger_name, trigger_group)
+alter table krsb_qrtz_triggers drop primary key, add primary key (trigger_name, trigger_group, sched_name)
 /
-alter table krsb_qrtz_blob_triggers drop primary key, add primary key (sched_name, trigger_name, trigger_group)
+alter table krsb_qrtz_blob_triggers drop primary key, add primary key (trigger_name, trigger_group, sched_name)
 /
-alter table KRSB_QRTZ_BLOB_TRIGGERS add  constraint  KRSB_QRTZ_BLOB_TRIGGERS_TR1 foreign key(sched_name, trigger_name, trigger_group) references KRSB_QRTZ_TRIGGERS (sched_name, trigger_name, trigger_group)
+alter table KRSB_QRTZ_BLOB_TRIGGERS add  constraint  KRSB_QRTZ_BLOB_TRIGGERS_TR1 foreign key(trigger_name, trigger_group, sched_name) references KRSB_QRTZ_TRIGGERS (trigger_name, trigger_group, sched_name)
 /
-alter table krsb_qrtz_cron_triggers drop primary key, add primary key (sched_name, trigger_name, trigger_group)
+alter table krsb_qrtz_cron_triggers drop primary key, add primary key (trigger_name, trigger_group, sched_name)
 /
-alter table krsb_qrtz_cron_triggers add  constraint  KRSB_QRTZ_CRON_TRIGGERS_TR1 foreign key(sched_name, trigger_name, trigger_group) references krsb_qrtz_triggers(sched_name, trigger_name, trigger_group)
+alter table krsb_qrtz_cron_triggers add  constraint  KRSB_QRTZ_CRON_TRIGGERS_TR1 foreign key(trigger_name, trigger_group, sched_name) references krsb_qrtz_triggers(trigger_name, trigger_group, sched_name)
 /
-alter table krsb_qrtz_simple_triggers drop primary key, add primary key (sched_name, trigger_name, trigger_group)
+alter table krsb_qrtz_simple_triggers drop primary key, add primary key (trigger_name, trigger_group, sched_name)
 /
-alter table krsb_qrtz_simple_triggers add  constraint  KRSB_QRTZ_SIMPLE_TRIGGERS_TR1 foreign key(sched_name, trigger_name, trigger_group) references krsb_qrtz_triggers(sched_name, trigger_name, trigger_group)
+alter table krsb_qrtz_simple_triggers add  constraint  KRSB_QRTZ_SIMPLE_TRIGGERS_TR1 foreign key(trigger_name, trigger_group, sched_name) references krsb_qrtz_triggers(trigger_name, trigger_group, sched_name)
 /
 alter table krsb_qrtz_fired_triggers drop primary key, add primary key (sched_name, entry_id)
 /
