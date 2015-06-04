@@ -113,6 +113,11 @@
           </dependency>
         </dependencies>
       </plugin>
+        <plugin>
+          <groupId>org.kuali.maven.plugins</groupId>
+          <artifactId>spring-maven-plugin</artifactId>
+          <version>${plugin.spring.version}</version>
+        </plugin>
     </plugins>
   </build>
 

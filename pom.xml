@@ -18,11 +18,6 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>org.kuali.pom</groupId>
-    <artifactId>kuali-common</artifactId>
-    <version>4.3.9</version>
-  </parent>
   <groupId>org.kuali.rice</groupId>
   <artifactId>rice</artifactId>
   <packaging>pom</packaging>
@@ -50,14 +45,15 @@
     <project.compile.source>1.7</project.compile.source>
     <project.compile.target>1.7</project.compile.target>
     <project.compiler.version>1.8</project.compiler.version>
+    <project.encoding>UTF-8</project.encoding>
+    <project.orgId>org.kuali</project.orgId>
+    <project.orgId.code>kuali</project.orgId.code>
     <tools.jar.path>${java.home}/../lib/tools.jar</tools.jar.path>
 
     <!-- These properties modify the release process -->
     <kuali.release.prepare.goals>clean</kuali.release.prepare.goals>
     <kuali.release.goals>deploy</kuali.release.goals>
     <kuali.release.arguments>-DskipTests</kuali.release.arguments>
-    <!-- TODO: remove with update to kuali-common 4.4.2 -->
-    <kuali-core.version>1.0.19</kuali-core.version>
     <appserver.port>8080</appserver.port>
     <gmaven.stubs.phase>generate-resources</gmaven.stubs.phase>
     <gmaven.compile.phase>compile</gmaven.compile.phase>
@@ -205,6 +201,8 @@
     <!-- Plugin versions: -->
 
     <plugin.build-helper.version>1.8</plugin.build-helper.version>
+    <plugin.compiler.version>3.2</plugin.compiler.version>
+    <plugin.dependency.version>2.9</plugin.dependency.version>
     <plugin.gmaven.version>1.5</plugin.gmaven.version>
     <plugin.http.version>1.0.5</plugin.http.version>
     <plugin.jetty.version>9.2.1.v20140609</plugin.jetty.version>
@@ -275,6 +273,15 @@
     <spring-instrument-javaagent>
       -javaagent:${spring-instrument.jar}
     </spring-instrument-javaagent>
+
+    <!-- Internal kuali library versions -->
+    <kuali-deploy.version>3.0.8</kuali-deploy.version>
+    <kuali-jdbc.version>3.1.10</kuali-jdbc.version>
+    <kuali-sql.version>2.1.4</kuali-sql.version>
+    <kuali-util.version>4.4.16</kuali-util.version>
+    <impex.version>3.0.8</impex.version>
+    <plugin.spring.version>3.1.0</plugin.spring.version>
+
 
   </properties>
 
