@@ -25,19 +25,16 @@
   <inceptionYear>2005</inceptionYear>
   <version>2.6.0-M1-SNAPSHOT</version>
   <description>
-    The Kuali Rice effort provides an enterprise class middleware suite of integrated products that allows
-    both Kuali and non-Kuali applications
-    to be built in an agile fashion, such that developers will be able to
-    react to
-    end-user business requirements in an efficient and productive manner, so
-    that they can produce high
-    quality business
-    applications.
+    The Kuali Rice effort provides an enterprise class middleware suite of 
+    integrated products that allows both Kuali and non-Kuali applications to 
+    be built in an agile fashion, such that developers will be able to react 
+    to end-user business requirements in an efficient and productive manner, 
+    so that they can produce high quality business applications.
   </description>
   <url>http://${kuali.site.hostname}/rice/${project.version}</url>
 
   <ciManagement>
-    <url>http://ci.rice.kuali.org</url>
+    <url>http://ci.kuali.org</url>
   </ciManagement>
 
   <properties>
